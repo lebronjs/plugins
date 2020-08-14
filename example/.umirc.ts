@@ -3,6 +3,7 @@ import { defineConfig } from 'umi';
 export default defineConfig({
   presets: [require.resolve('../packages/preset-react/lib')],
   // plugins: [require.resolve('../packages/plugin-webpack-5/lib')],
+  // plugins: [require.resolve('../packages/plugin-analytics/lib')],
   routes: [
     {
       name: 'model 测试',
@@ -36,5 +37,11 @@ export default defineConfig({
   locale: {},
   layout: {
     name: 'UMI 3',
+  },
+  analytics: {
+    gtag: {
+      GA_MEASUREMENT_ID: 'UA-xxxxxx-8',
+      SEND_DATA_NAME: 'gtagData',
+    },
   },
 });

@@ -13,7 +13,7 @@ export default (api: IApi) => {
     },
   });
   const { analytics = {} } = api.userConfig;
-  const { baidu = false, ga = GA_KEY } = analytics || {};
+  const { baidu = false, ga = GA_KEY, gtag } = analytics || {};
   api.logger.log('insert analytics');
 
   const baiduTpl = (code: string) => {
@@ -48,6 +48,26 @@ export default (api: IApi) => {
     })();
   `;
   };
+  const gtagTpl = function(id: string, key: string) {
+    return `
+    (function(){
+      var data =  window.g_initialProps["${key}"];
+      var script = document.createElement('script');
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=${id}';
+      script.async = true;
+      script.onload = function() {
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function() {
+          window.dataLayer.push(arguments);
+        };
+        window.gtag('js', new Date());
+        window.gtag('config', '${id}');
+        data && window.gtag('set', data)
+      };
+      document.getElementsByTagName('head')[0].appendChild(script);
+    })();
+  `;
+  };
 
   if (baidu) {
     api.addHTMLHeadScripts(() => [
@@ -69,6 +89,14 @@ export default (api: IApi) => {
       api.addHTMLScripts(() => [
         {
           content: gaTpl(ga),
+        },
+      ]);
+    }
+    if (gtag.GA_MEASUREMENT_ID) {
+      const { GA_MEASUREMENT_ID, SEND_DATA_KEY } = gtag;
+      api.addHTMLScripts(() => [
+        {
+          content: gtagTpl(GA_MEASUREMENT_ID, SEND_DATA_KEY),
         },
       ]);
     }
